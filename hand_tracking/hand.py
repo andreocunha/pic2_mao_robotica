@@ -1,42 +1,79 @@
 import cv2
 import mediapipe as mp
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-mp_hands = mp.solutions.hands
+import time
+from google.protobuf.json_format import MessageToDict
 
-
-# For webcam input:
+frameWidth = 640
+frameHeight = 480
 cap = cv2.VideoCapture(0)
-with mp_hands.Hands(
+cap.set(3, frameWidth)
+cap.set(4, frameHeight)
+
+mpHands=mp.solutions.hands
+hands=mpHands.Hands(
+    max_num_hands=1,
     model_complexity=0,
     min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as hands:
-  while cap.isOpened():
-    success, image = cap.read()
-    if not success:
-      print("Ignoring empty camera frame.")
-      # If loading a video, use 'break' instead of 'continue'.
-      continue
+    min_tracking_confidence=0.5
+)
+mpDraw = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
 
-    # To improve performance, optionally mark the image as not writeable to
-    # pass by reference.
-    image.flags.writeable = False
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    results = hands.process(image)
+pTime = 0
+cTime = 0
 
-    # Draw the hand annotations on the image.
-    image.flags.writeable = True
-    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+tipIds = [4, 8, 12, 16, 20]
+
+
+while True:
+    success, img = cap.read()
+    img= cv2.flip(img,1)
+    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    results = hands.process(imgRGB)
+
+
     if results.multi_hand_landmarks:
-      for hand_landmarks in results.multi_hand_landmarks:
-        mp_drawing.draw_landmarks(
-            image,
-            hand_landmarks,
-            mp_hands.HAND_CONNECTIONS,
-            mp_drawing_styles.get_default_hand_landmarks_style(),
-            mp_drawing_styles.get_default_hand_connections_style())
-    # Flip the image horizontally for a selfie-view display.
-    cv2.imshow('MediaPipe Hands', cv2.flip(image, 1))
-    if cv2.waitKey(5) & 0xFF == 27:
-      break
-cap.release()
+
+        for i in results.multi_handedness:
+                label = MessageToDict(i)['classification'][0]['label']
+                if(label == 'Right'):
+                    for handLms in results.multi_hand_landmarks: 
+
+                        #handLMs sao 21 pontos da mão.
+                        lmList = []
+                        for id, lm in enumerate(handLms.landmark):
+                            # print(id, lm)
+                            #lm = x,y cordinate of each landmark in float numbers. lm.x, lm.y methods
+                            #So, need to covert in integer
+                            h, w, c =img.shape
+                            cx, cy = int(lm.x * w), int(lm.y * h)
+                            # print(id, cx, cy)
+                            lmList.append([id, cx, cy])
+                            # if id == 4: #(To draw 4th point)
+                            cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
+                        # print(lmList)
+
+                        if len(lmList) != 0:
+                            fingers = []
+
+                            # Dedao
+                            if lmList[tipIds[0]][1] < lmList[tipIds[0]-1][1]:
+                                fingers.append(1)
+                            else:
+                                fingers.append(0)
+
+                            # Para os outros 4 dedos
+                            for id in range(1,5):
+                                if lmList[tipIds[id]][2] < lmList[tipIds[id]-2][2]:
+                                    fingers.append(1)
+                                else:
+                                    fingers.append(0)
+                            print(fingers)
+
+                        #drawing points and lines(=handconections)
+                        mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS, mp_drawing_styles.get_default_hand_landmarks_style(),mp_drawing_styles.get_default_hand_connections_style())
+                
+    
+    cv2.imshow('image', img)
+    if cv2.waitKey(1)==27:
+        break
