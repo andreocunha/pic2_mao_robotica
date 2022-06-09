@@ -6,7 +6,7 @@ sio = socketio.Client()
 @sio.event
 def connect():
     print("Conectado!")
-    sio.emit('data', "Hello World")
+    sio.emit('data', "Hello World do cliente")
 
 @sio.event
 def connect_error():
@@ -14,7 +14,7 @@ def connect_error():
 
 @sio.on('info')
 def on_message(data):
-    print('Info:', data)
+    print('Info: ', data)
 
 
 sio.connect('http://localhost:5000')

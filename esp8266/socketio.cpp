@@ -7,7 +7,7 @@ SocketIOclient socket;
 // inicializa o socket.io-client
 void init_socket()
 {
-  socket.begin("192.168.43.137", 4000, "/socket.io/?EIO=4");
+  socket.begin("192.168.47.196", 4000, "/socket.io/?EIO=4");
   // socket.begin("server-telemeapp.herokuapp.com", 80);
 
   socket.onEvent(socketIOEvent);

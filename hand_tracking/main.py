@@ -94,7 +94,8 @@ while True:
                                 else:
                                     fingers.append(0)
                             print(fingers)
-                            sio.emit('data', fingers)
+                            if conectedToServer:
+                                sio.emit('data', fingers)
 
                         #drawing points and lines(=handconections)
                         mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS, mp_drawing_styles.get_default_hand_landmarks_style(),mp_drawing_styles.get_default_hand_connections_style())
