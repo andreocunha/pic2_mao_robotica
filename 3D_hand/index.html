@@ -10,16 +10,34 @@
     <title>Mão Robotica</title>
 </head>
 <body>
+    <input type="color" name="" id="color">
+    <button onclick="changeColor()">trocar cor</button>
     <script>
         const scene = new THREE.Scene();
         scene.background = new THREE.Color( 0xffffff );
+
         const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
         camera.translateZ(-2)
 
+        let color = hexToRgb(document.getElementById('color').value)
+
         const loader = new THREE.GLTFLoader();
+
+        function hexToRgb(hex) {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16)/100,
+                g: parseInt(result[2], 16)/100,
+                b: parseInt(result[3], 16)/100
+            } : null;
+        }
 
         let obj;
         let mao;
+
+        function changeColor(){
+            color = hexToRgb(document.getElementById('color').value)
+        }
 
         loader.load( 'mao2.glb', function ( gltf ) {
             gltf.scene.scale.set(0.5,0.5,0.5);
@@ -29,7 +47,6 @@
             mao = mao.filter((dedos, index) => {
                 return index >= 1 && index <=5;
             })
-            console.log(mao)
 
             scene.add( gltf.scene );
 
@@ -77,26 +94,22 @@
                 mov -= 0.01
             }
 
-            
+            const cor = {
+                r: 0,
+                g: 0,
+                b: 0
+            }
+            console.log(color)
+            mao[0].children[1].material.color = color
             mao[0].children[1].rotation.x = mov*-1
             mao[0].children[1].children[0].rotation.x = mov*-1
             
-
-            mao[1].rotation.y = mov
-            mao[1].children[0].rotation.y = mov
-            mao[1].children[0].children[0].rotation.y = mov
-
-            mao[2].rotation.y = mov
-            mao[2].children[0].rotation.y = mov
-            mao[2].children[0].children[0].rotation.y = mov
-
-            mao[3].rotation.y = mov
-            mao[3].children[0].rotation.y = mov
-            mao[3].children[0].children[0].rotation.y = mov
-
-            mao[4].rotation.y = mov
-            mao[4].children[0].rotation.y = mov
-            mao[4].children[0].children[0].rotation.y = mov
+            for(let i = 1; i<5; i++){
+                mao[i].children[0].material.color = color
+                mao[i].rotation.y = mov
+                mao[i].children[0].rotation.y = mov
+                mao[i].children[0].children[0].rotation.y = mov
+            }
 
             renderer.render( scene, camera );
         };
