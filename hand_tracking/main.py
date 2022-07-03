@@ -45,7 +45,8 @@ def on_message(data):
 
 # conecta ao socketio
 try:
-    sio.connect('http://localhost:4000')
+    # sio.connect('http://localhost:4000')
+    sio.connect('https://server-robotic-hand.herokuapp.com')
     conectedToServer = True
 except:
     print("Erro ao conectar ao socketio")
