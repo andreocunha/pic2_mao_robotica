@@ -19,7 +19,8 @@
     <input type="color" name="" id="color" onchange="changeColor()"> 
     <script>
         let leituraMao = []
-        let socket = io.connect('http://localhost:4000');
+        // let socket = io.connect('http://localhost:4000');
+        let socket = io.connect('https://server-robotic-hand.herokuapp.com');
 
         socket.on('info', function(data) {
             //console.log(data);
