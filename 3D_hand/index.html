@@ -7,12 +7,23 @@
     <script src="https://threejs.org/build/three.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.min.js" integrity="sha512-n8IpKWzDnBOcBhRlHirMZOUvEq2bLRMuJGjuVqbzUJwtTsgwOgK5aS0c1JA647XWYfqvXve8k3PtZdzpipFjgg==" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script> 
+    <script src="http://localhost:4000/socket.io/socket.io.js"></script> 
     <title>Mão Robotica</title>
 </head>
 <body>
-    <input type="color" name="" id="color">
-    <button onclick="changeColor()">trocar cor</button>
+
+   
+
+    <input type="color" name="" id="color" onchange="changeColor()"> 
     <script>
+        let leituraMao = []
+        let socket = io.connect('http://localhost:4000');
+
+        socket.on('info', function(data) {
+            //console.log(data);
+            leituraMao = data
+        });
         const scene = new THREE.Scene();
         scene.background = new THREE.Color( 0xffffff );
 
@@ -75,40 +86,45 @@
         camera.position.y = 1;
 
         let sentido = 1
-        let mov = 0.00
+        let mov = [0.00, 0.0, 0.0, 0.0, 0.0]
 
         function animate() {
             requestAnimationFrame( animate );
             obj.rotation.y += 0.01
 
-            if(mao[1].rotation.y >= 1 ){
-                sentido = 0
+            if(leituraMao[0] == 0 && mao[0].children[1].rotation.x> -1){
+                mov[0] += 0.1
             }
-            if(mao[1].rotation.y <= 0 ){
-                sentido = 1
+            else if(leituraMao[0] == 1 && mao[0].children[1].rotation.x< 0){
+                mov[0] -= 0.1
             }
-            if(sentido == 1){
-                mov += 0.01
+
+            for(let i = 1; i<5; i++){
+                if(leituraMao[i] == 0 && mao[i].rotation.y < 1){
+                    mov[i] += 0.1
+                }
+                else if(leituraMao[i] == 1 && mao[i].rotation.y > 0){
+                    mov[i] -= 0.1
+                }
             }
-            else if(sentido == 0){
-                mov -= 0.01
-            }
+
+            
 
             const cor = {
                 r: 0,
                 g: 0,
                 b: 0
             }
-            console.log(color)
+            // console.log(leituraMao)
             mao[0].children[1].material.color = color
-            mao[0].children[1].rotation.x = mov*-1
-            mao[0].children[1].children[0].rotation.x = mov*-1
+            mao[0].children[1].rotation.x = mov[0]*-1
+            mao[0].children[1].children[0].rotation.x = mov[0]*-1
             
             for(let i = 1; i<5; i++){
                 mao[i].children[0].material.color = color
-                mao[i].rotation.y = mov
-                mao[i].children[0].rotation.y = mov
-                mao[i].children[0].children[0].rotation.y = mov
+                mao[i].rotation.y = mov[i]
+                mao[i].children[0].rotation.y =  mov[i]
+                mao[i].children[0].children[0].rotation.y =  mov[i]
             }
 
             renderer.render( scene, camera );
