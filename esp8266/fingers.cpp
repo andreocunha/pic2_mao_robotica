@@ -1,25 +1,47 @@
 #include "fingers.h"
+Servo dedo2;
+Servo dedo3;
+Servo dedo4;
+Servo dedo5;
 
 void init_fingers(){
-  pinMode(D1, OUTPUT);
-  pinMode(D2, OUTPUT);
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
-  pinMode(D5, OUTPUT);
+  dedo2.attach(D2);
+  dedo3.attach(D3);
+  dedo4.attach(D4);
+  dedo5.attach(D5);  // anexando o pino D5 do NodeMcu ao meuservo
 
-  digitalWrite(D1, LOW);
-  digitalWrite(D2, LOW);
-  digitalWrite(D3, LOW);
-  digitalWrite(D4, LOW);
-  digitalWrite(D5, LOW);
 }
 
-void move_fingers(char* d1, char* d2, char* d3, char* d4, char* d5){
+static int convert(long percent){
+    return (percent*180)/100;
+}
+
+void move_fingers(long d1, long d2, long d3, long d4, long d5){
 //  Serial.printf("%s\n", fingers['info']);
-  
-  d1 == (char*)'1' ? digitalWrite(D1, HIGH) : digitalWrite(D1, LOW);
-  d2 == (char*)'1' ? digitalWrite(D2, HIGH) : digitalWrite(D2, LOW);
-  d3 == (char*)'1' ? digitalWrite(D3, HIGH) : digitalWrite(D3, LOW);
-  d4 == (char*)'1' ? digitalWrite(D4, HIGH) : digitalWrite(D4, LOW);
-  d5 == (char*)'1' ? digitalWrite(D5, HIGH) : digitalWrite(D5, LOW);
+
+  dedo2.write(convert(d2));
+  dedo3.write(convert(d3));
+  dedo4.write(convert(d4));
+  dedo5.write(convert(d5));
+
+//  d2 == (char*)'1' ? dedo2.write(179) : dedo2.write(0);
+//  d3 == (char*)'1' ? dedo3.write(179) : dedo3.write(0);
+//  d4 == (char*)'1' ? dedo4.write(179) : dedo4.write(0);
+//  d5 == (char*)'1' ? dedo5.write(179) : dedo5.write(0);
+}
+
+
+int pos = 0;    // variável de posição iniciada em zero
+
+void finger_teste(){
+  for (pos = 0; pos <= 180; pos += 1) { // movimento de 0 a 180º
+    // crescente
+    dedo4.write(pos);              // escreve posicao em meuservo
+    delay(5);                       // aguarda 35ms
+  }
+  for (pos = 180; pos >= 0; pos -= 1) { // movimento de 180º a 0
+    // descrescente
+    dedo4.write(pos);              // escreve posicao em meuservo
+    delay(5);                       // aguarda 35ms
+  }
 }
