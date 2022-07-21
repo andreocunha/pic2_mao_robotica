@@ -52,11 +52,16 @@ except:
     print("Erro ao conectar ao socketio")
 
 def escala(valor):
-    if valor < 0.5:
-        return round(0,2)
-    elif valor > 1.9:
-        return round(100,2)
-    return round((((valor - 0.5) / (1.9 - 0.5)) * 100),2)
+    if valor <= 0.5:
+        return 0
+    elif valor > 0.5 and valor <= 0.7:
+        return 25
+    elif valor > 0.7 and valor <= 1.2:
+        return 50
+    elif valor > 1.2 and valor <= 1.6:
+        return 75
+    elif valor > 1.6:
+        return 100
 
 while True:
     success, img = cap.read()
@@ -89,11 +94,12 @@ while True:
 
                     if len(lmList) != 0:
                         # print(lmList)
-                        fingers = []
+                        fingers = {}
 
                         # print(lmList[17])
                         distRef = ((lmList[0][1] - lmList[1][1]) ** 2 + (lmList[0][2] - lmList[1][2]) ** 2) ** 0.5
                         # print(distRef)
+
 
                         distDedoIndicador = ((lmList[8][1] - lmList[5][1]) ** 2 + (lmList[8][2] - lmList[5][2]) ** 2) ** 0.5
                         distDedoMeio = ((lmList[12][1] - lmList[9][1]) ** 2 + (lmList[12][2] - lmList[9][2]) ** 2) ** 0.5
@@ -102,12 +108,22 @@ while True:
 
                         # Dedao
                         if lmList[tipIds[0]][1] < lmList[5][1] and lmList[5][1] < lmList[9][1]:
-                            fingers.append(1)
+                            fingers['dedo1'] = 100
                         else:
                             if lmList[tipIds[0]][1] > lmList[5][1] and lmList[5][1] > lmList[9][1]:
-                                fingers.append(1)
+                                fingers['dedo1'] = 100
                             else:
-                                fingers.append(0)
+                                fingers['dedo1'] = 0
+
+
+                        # Para os outros 4 dedos
+                        for id in range(1,5):
+                            result = ((lmList[tipIds[id]][1] - lmList[tipIds[id]-3][1]) ** 2 + (lmList[tipIds[id]][2] - lmList[tipIds[id]-3][2]) ** 2) ** 0.5
+                            result = escala(result/distRef)
+                            if lmList[tipIds[id]][2] < lmList[tipIds[id]-3][2]:
+                                fingers['dedo'+str(id+1)] = result
+                            else:
+                                fingers['dedo'+str(id+1)] = 0
 
                         # Para os outros 4 dedos
                         # for id in range(1,5):
@@ -116,12 +132,12 @@ while True:
                         #     else:
                         #         fingers.append(0)
 
-                        fingers = {
-                            "dedo2": escala(distDedoIndicador/distRef), 
-                            "dedo3": escala(distDedoMeio/distRef), 
-                            "dedo4": escala(distDedoAnelar/distRef), 
-                            "dedo5": escala(distDedoMinimo*1.2/distRef)
-                        }
+                        # fingers = {
+                        #     "dedo2": escala(distDedoIndicador/distRef), 
+                        #     "dedo3": escala(distDedoMeio/distRef), 
+                        #     "dedo4": escala(distDedoAnelar/distRef), 
+                        #     "dedo5": escala(distDedoMinimo*1.2/distRef)
+                        # }
                         print(fingers)
                         if conectedToServer:
                             sio.emit('data', fingers)
