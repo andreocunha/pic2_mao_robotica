@@ -7,7 +7,7 @@ SocketIOclient socket;
 // inicializa o socket.io-client
 void init_socket()
 {
-  socket.begin("192.168.20.196", 4000, "/socket.io/?EIO=4");
+  socket.begin("192.168.15.25", 4000, "/socket.io/?EIO=4");
   // socket.begin("server-telemeapp.herokuapp.com", 80);
 
   socket.onEvent(socketIOEvent);
@@ -29,6 +29,7 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, objeto);
     JsonObject obj = doc.as<JsonObject>();
+    long dedo1 = obj[String("dedo1")];
     long dedo2 = obj[String("dedo2")];
     long dedo3 = obj[String("dedo3")];
     long dedo4 = obj[String("dedo4")];
@@ -51,7 +52,7 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
 //
 //            Serial.println(text);
 //            move_fingers((char *)payload[9], (char *)payload[11], (char *)payload[13], (char *)payload[15], (char *)payload[17]);
-            move_fingers(0, dedo2, dedo3, dedo4, dedo5);
+            move_fingers(dedo1, dedo2, dedo3, dedo4, dedo5);
             break;
         case sIOtype_ACK:
             Serial.printf("[IOc] get ack: %u\n", length);

@@ -39,9 +39,9 @@ def connect():
 def connect_error():
     print("A conexao falhou!")
 
-@sio.on('info')
-def on_message(data):
-    print('Info:', data)
+# @sio.on('info')
+# def on_message(data):
+#     print('Info:', data)
 
 # conecta ao socketio
 try:
@@ -54,13 +54,13 @@ except:
 def escala(valor):
     if valor <= 0.5:
         return 0
-    elif valor > 0.5 and valor <= 0.7:
+    elif valor > 0.5 and valor <= 0.8:
         return 25
-    elif valor > 0.7 and valor <= 1.2:
+    elif valor > 0.8 and valor <= 1.2:
         return 50
-    elif valor > 1.2 and valor <= 1.6:
+    elif valor > 1.2 and valor <= 1.4:
         return 75
-    elif valor > 1.6:
+    elif valor > 1.4:
         return 100
 
 while True:
@@ -104,7 +104,11 @@ while True:
                         distDedoIndicador = ((lmList[8][1] - lmList[5][1]) ** 2 + (lmList[8][2] - lmList[5][2]) ** 2) ** 0.5
                         distDedoMeio = ((lmList[12][1] - lmList[9][1]) ** 2 + (lmList[12][2] - lmList[9][2]) ** 2) ** 0.5
                         distDedoAnelar = ((lmList[16][1] - lmList[13][1]) ** 2 + (lmList[16][2] - lmList[13][2]) ** 2) ** 0.5
-                        distDedoMinimo = ((lmList[20][1] - lmList[17][1]) ** 2 + (lmList[20][2] - lmList[17][2]) ** 2) ** 0.5
+                        distDedoMinimo = (((lmList[20][1] - lmList[17][1]) ** 2 + (lmList[20][2] - lmList[17][2]) ** 2) ** 0.5)*1.3
+
+                        # distDedoMinimo = distDedoMinimo * (1+ 0.1*(distDedoMinimo/distRef))
+
+                        print( distDedoIndicador, distDedoMinimo)
 
                         # Dedao
                         if lmList[tipIds[0]][1] < lmList[5][1] and lmList[5][1] < lmList[9][1]:
@@ -138,7 +142,7 @@ while True:
                         #     "dedo4": escala(distDedoAnelar/distRef), 
                         #     "dedo5": escala(distDedoMinimo*1.2/distRef)
                         # }
-                        print(fingers)
+                        # print(fingers)
                         if conectedToServer:
                             sio.emit('data', fingers)
 
