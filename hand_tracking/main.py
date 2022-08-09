@@ -1,6 +1,5 @@
 import cv2
 import mediapipe as mp
-import time
 import socketio
 from google.protobuf.json_format import MessageToDict
 
@@ -33,15 +32,15 @@ conectedToServer = False
 @sio.event
 def connect():
     print("Conectado!")
-    sio.emit('data', "Leitura da mão iniciada")
+    # sio.emit('data', "Leitura da mão iniciada")
 
 @sio.event
 def connect_error():
     print("A conexao falhou!")
 
-# @sio.on('info')
-# def on_message(data):
-#     print('Info:', data)
+@sio.on('info')
+def on_message(data):
+    print('Info:', data)
 
 # conecta ao socketio
 try:
@@ -52,15 +51,15 @@ except:
     print("Erro ao conectar ao socketio")
 
 def escala(valor):
-    if valor <= 0.5:
+    if valor <= 0.4:
         return 0
-    elif valor > 0.5 and valor <= 0.8:
+    elif valor > 0.4 and valor <= 0.8:
         return 25
     elif valor > 0.8 and valor <= 1.2:
         return 50
-    elif valor > 1.2 and valor <= 1.4:
+    elif valor > 1.2 and valor <= 1.8:
         return 75
-    elif valor > 1.4:
+    elif valor > 1.8:
         return 100
 
 while True:
@@ -93,22 +92,9 @@ while True:
                     # print(lmList)
 
                     if len(lmList) != 0:
-                        # print(lmList)
                         fingers = {}
 
-                        # print(lmList[17])
                         distRef = ((lmList[0][1] - lmList[1][1]) ** 2 + (lmList[0][2] - lmList[1][2]) ** 2) ** 0.5
-                        # print(distRef)
-
-
-                        distDedoIndicador = ((lmList[8][1] - lmList[5][1]) ** 2 + (lmList[8][2] - lmList[5][2]) ** 2) ** 0.5
-                        distDedoMeio = ((lmList[12][1] - lmList[9][1]) ** 2 + (lmList[12][2] - lmList[9][2]) ** 2) ** 0.5
-                        distDedoAnelar = ((lmList[16][1] - lmList[13][1]) ** 2 + (lmList[16][2] - lmList[13][2]) ** 2) ** 0.5
-                        distDedoMinimo = (((lmList[20][1] - lmList[17][1]) ** 2 + (lmList[20][2] - lmList[17][2]) ** 2) ** 0.5)*1.3
-
-                        # distDedoMinimo = distDedoMinimo * (1+ 0.1*(distDedoMinimo/distRef))
-
-                        print( distDedoIndicador, distDedoMinimo)
 
                         # Dedao
                         if lmList[tipIds[0]][1] < lmList[5][1] and lmList[5][1] < lmList[9][1]:
@@ -123,26 +109,14 @@ while True:
                         # Para os outros 4 dedos
                         for id in range(1,5):
                             result = ((lmList[tipIds[id]][1] - lmList[tipIds[id]-3][1]) ** 2 + (lmList[tipIds[id]][2] - lmList[tipIds[id]-3][2]) ** 2) ** 0.5
+                            if id == 4:
+                                result = result*1.2
                             result = escala(result/distRef)
                             if lmList[tipIds[id]][2] < lmList[tipIds[id]-3][2]:
                                 fingers['dedo'+str(id+1)] = result
                             else:
                                 fingers['dedo'+str(id+1)] = 0
 
-                        # Para os outros 4 dedos
-                        # for id in range(1,5):
-                        #     if lmList[tipIds[id]][2] < lmList[tipIds[id]-2][2]:
-                        #         fingers.append(1)
-                        #     else:
-                        #         fingers.append(0)
-
-                        # fingers = {
-                        #     "dedo2": escala(distDedoIndicador/distRef), 
-                        #     "dedo3": escala(distDedoMeio/distRef), 
-                        #     "dedo4": escala(distDedoAnelar/distRef), 
-                        #     "dedo5": escala(distDedoMinimo*1.2/distRef)
-                        # }
-                        # print(fingers)
                         if conectedToServer:
                             sio.emit('data', fingers)
 

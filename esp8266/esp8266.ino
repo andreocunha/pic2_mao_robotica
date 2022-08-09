@@ -22,7 +22,6 @@ void loop()
     Serial.print(millis());
     Serial.println("Reconnecting to WiFi...");
     WiFi.disconnect();
-    //    WiFi.reconnect();
     init_wifi();
     previousmillis = currentmillis;
   }
@@ -35,9 +34,6 @@ void loop()
     }
     else
     {
-
-//      String all_info = "Hello world!";
-//      send_socket(all_info);
       previousmillis = currentmillis;
     }
   }

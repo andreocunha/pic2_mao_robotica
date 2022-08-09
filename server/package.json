@@ -12,6 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "nodemon": "^2.0.15",
-    "socket.io": "^4.4.1"
+    "socket.io": "^4.5.1"
   }
 }

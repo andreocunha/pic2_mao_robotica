@@ -6,8 +6,6 @@
 
 
 void init_fingers();
-//void move_fingers(char* d1, char* d2, char* d3, char* d4, char* d5);
-void move_fingers(long d1, long d2, long d3, long d4, long d5);
-void finger_teste();
+void move_fingers(int d1, int d2, int d3, int d4, int d5);
 
 #endif

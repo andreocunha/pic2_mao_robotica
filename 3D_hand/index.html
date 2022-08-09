@@ -8,131 +8,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.min.js" integrity="sha512-n8IpKWzDnBOcBhRlHirMZOUvEq2bLRMuJGjuVqbzUJwtTsgwOgK5aS0c1JA647XWYfqvXve8k3PtZdzpipFjgg==" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script> 
-    <!-- <script src="http://localhost:4000/socket.io/socket.io.js"></script>  -->
-    <script src="https://server-robotic-hand.herokuapp.com/socket.io/socket.io.js"></script> 
+    <!-- <script src="https://server-robotic-hand.herokuapp.com/socket.io/socket.io.js"></script>  -->
+    <script src="http://localhost:4000/socket.io/socket.io.js"></script> 
+    <link rel="stylesheet" href="style.css">
     <title>Mão Robotica</title>
 </head>
 <body>
-
-   
-
-    <input type="color" name="" id="color" onchange="changeColor()"> 
-    <script>
-        let leituraMao = []
-        // let socket = io.connect('http://localhost:4000');
-        let socket = io.connect('https://server-robotic-hand.herokuapp.com');
-
-        socket.on('info', function(data) {
-            //console.log(data);
-            leituraMao = data
-        });
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color( 0xffffff );
-
-        const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        camera.translateZ(-2)
-
-        let color = hexToRgb(document.getElementById('color').value)
-
-        const loader = new THREE.GLTFLoader();
-
-        function hexToRgb(hex) {
-            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16)/100,
-                g: parseInt(result[2], 16)/100,
-                b: parseInt(result[3], 16)/100
-            } : null;
-        }
-
-        let obj;
-        let mao;
-
-        function changeColor(){
-            color = hexToRgb(document.getElementById('color').value)
-        }
-
-        loader.load( 'mao2.glb', function ( gltf ) {
-            gltf.scene.scale.set(0.5,0.5,0.5);
-
-            obj = gltf.scene
-            mao = obj.children[0].children[0].children[0].children;
-            mao = mao.filter((dedos, index) => {
-                return index >= 1 && index <=5;
-            })
-
-            scene.add( gltf.scene );
-
-        }, undefined, function ( error ) {
-
-        console.error( error );
-
-        } );
-
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        document.body.appendChild( renderer.domElement );
-
-        const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        const material = new THREE.MeshBasicMaterial( { color: 0x00ffff } );
-
-
-        const light = new THREE.AmbientLight(0x404040);
-        scene.add(light)
-
-        const pointLight = new THREE.PointLight(0xffffff, 3, 100)
-        pointLight.position.set(50, 50, 50)
-        scene.add(pointLight)
-
-        camera.position.z = 3;
-        camera.position.y = 1;
-
-        let sentido = 1
-        let mov = [0.00, 0.0, 0.0, 0.0, 0.0]
-
-        function animate() {
-            requestAnimationFrame( animate );
-            obj.rotation.y += 0.01
-
-            if(leituraMao[0] == 0 && mao[0].children[1].rotation.x> -1){
-                mov[0] += 0.1
-            }
-            else if(leituraMao[0] == 1 && mao[0].children[1].rotation.x< 0){
-                mov[0] -= 0.1
-            }
-
-            for(let i = 1; i<5; i++){
-                if(leituraMao[i] == 0 && mao[i].rotation.y < 1){
-                    mov[i] += 0.1
-                }
-                else if(leituraMao[i] == 1 && mao[i].rotation.y > 0){
-                    mov[i] -= 0.1
-                }
-            }
-
-            
-
-            const cor = {
-                r: 0,
-                g: 0,
-                b: 0
-            }
-            // console.log(leituraMao)
-            mao[0].children[1].material.color = color
-            mao[0].children[1].rotation.x = mov[0]*-1
-            mao[0].children[1].children[0].rotation.x = mov[0]*-1
-            
-            for(let i = 1; i<5; i++){
-                mao[i].children[0].material.color = color
-                mao[i].rotation.y = mov[i]
-                mao[i].children[0].rotation.y =  mov[i]
-                mao[i].children[0].children[0].rotation.y =  mov[i]
-            }
-
-            renderer.render( scene, camera );
-        };
-
-        animate();
-    </script>
+    <input type="color" id="color" onchange="changeColor()" value="#204A87">
+    <script src="script.js"></script>
 </body>
 </html>
